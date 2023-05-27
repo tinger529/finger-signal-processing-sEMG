@@ -39,5 +39,10 @@ sEMG-Neural-Net : (只有列出我覺得用得到的)
     - sEMG-CNN3.ipynb: 套用了全新的utility3技術
     - utility3.py: 套用了normalize
 
+2023/5/27 新增:
+
+    - sEMG-rf.ipynb: 把原本的 random forest 加上 testing
+    - utilities_rf.py: 整理自 utilities3.py，更正 one-hot、rest channel 自己也扣掉、加 read_testing_data() 讀測試資料
+
 **TODO**
 可以試看看不同模型，我試試看作fft
