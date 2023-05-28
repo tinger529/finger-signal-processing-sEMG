@@ -46,18 +46,18 @@ def read_data(data_path, split_type="train", shuffle=False, sub_split=False):
 
     files = [
         'rest.csv',
-        'first.csv',
-        'second.csv',
-        'third.csv',
-        'fourth.csv',
-        'fifth.csv'
+        '1st.csv',
+        '2nd.csv',
+        '3rd.csv',
+        '4th.csv',
+        '5th.csv'
     ]
 
     channels = {i : [] for i in range(n_channels)}
     
     for file in files:
         for round_num in test_round:
-            full_round_path = os.path.join(data_path, 'test%d' % round_num)
+            full_round_path = os.path.join(data_path, 's%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
 
             df = pd.read_csv(full_file_path, header=None)
