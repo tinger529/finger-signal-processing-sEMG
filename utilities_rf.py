@@ -25,8 +25,9 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
     min_n_rows = None
     for file in files:
         for round_num in range(1, n_rounds):
-            full_round_path = os.path.join(data_path, 's%d' % round_num)
+            full_round_path = os.path.join(data_path, 'm%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
+            print(full_file_path)
             df = pd.read_csv(full_file_path, header=None)
             if min_n_rows == None or len(df[0]) < min_n_rows:
                 min_n_rows = len(df[0])
@@ -59,8 +60,11 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
     
     for file in files:
         for round_num in range(1, n_rounds+1):
-            full_round_path = os.path.join(data_path, 's%d' % round_num)
+            full_round_path = os.path.join(data_path, 'm%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
+            # check if file exists
+            if not os.path.isfile(full_file_path):
+                continue
             df = pd.read_csv(full_file_path, header=None)
             channels_of_df = np.array(
                 [np.array(df[i][start_step:end_step]) for i in range(n_channels)]
@@ -183,6 +187,8 @@ def read_testing_data(data_path, files, n_classes):
     channels = {i : [] for i in range(n_channels)}
     restchannels = None
 
+    print(n_classes)
+
     labels = np.concatenate(
         (
             [[class_id for _ in range(total_steps // n_steps)] for class_id in range(n_classes)]
@@ -221,7 +227,6 @@ def read_testing_data(data_path, files, n_classes):
     for num_channel in range(n_channels):
         X[:, :, num_channel] = np.array(channels[num_channel])
         list_of_channels.append(num_channel)
-   
 
     return X, labels, list_of_channels
 

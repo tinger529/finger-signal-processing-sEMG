@@ -1,7 +1,0 @@
-肌肉對應的channel
-手心朝上從左至右
-Raw1:
-channel 1->channel 2
-Raw2:
-channel 1->channel 2->channel 3
-裡面四個column對應到三個channel和左手的訊號（接地）
