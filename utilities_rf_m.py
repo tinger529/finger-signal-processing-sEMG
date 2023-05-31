@@ -17,17 +17,20 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
     :param sub_split: Should the data be split in half and returned as a two-tuple.
     :return: Data formatted for neural network training.
     """
-    n_classes = 6
+    n_classes = 22
     n_channels = 3
-    n_rounds = 2
+    n_rounds = 3
 
     # get minimum number of rows
     min_n_rows = None
     for file in files:
-        for round_num in range(1, n_rounds):
-            full_round_path = os.path.join(data_path, 's%d' % round_num)
+        for round_num in range(1, n_rounds+1):
+            full_round_path = os.path.join(data_path, 'm%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
             print(full_file_path)
+            # check if file exists
+            if not os.path.isfile(full_file_path):
+                continue
             df = pd.read_csv(full_file_path, header=None)
             if min_n_rows == None or len(df[0]) < min_n_rows:
                 min_n_rows = len(df[0])
@@ -51,16 +54,17 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
 
     labels = np.concatenate(
         (
-            [[class_id for _ in range(total_steps // n_steps * n_rounds)] for class_id in range(n_classes)]
+            [[class_id for _ in range(total_steps // n_steps)] for class_id in range(n_classes)]
         )
     )
 
+    print(len(labels))
 
     channels = {i : [] for i in range(n_channels)}
     
     for file in files:
         for round_num in range(1, n_rounds+1):
-            full_round_path = os.path.join(data_path, 's%d' % round_num)
+            full_round_path = os.path.join(data_path, 'm%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
             # check if file exists
             if not os.path.isfile(full_file_path):
@@ -84,7 +88,7 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
             channels[num_channel] = (channels[num_channel] - np.mean(restchannels[num_channel]))
             channels[num_channel] = channels[num_channel].tolist()
             
-            
+    print(len(channels[0]))
                 
     list_of_channels = []
     X = np.zeros((len(labels), n_steps, n_channels))
@@ -98,8 +102,6 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
         shuff_labels = np.zeros((len(labels), 1, n_channels))
         shuff_labels[:, 0, 0] = labels
         shuff_labels[:, 0, 1] = labels
-        print(shuff_labels.shape)
-        print(X.shape)
 
         new_data = np.concatenate([shuff_labels, X], axis=1)
 
@@ -193,7 +195,7 @@ def read_testing_data(data_path, files, n_classes):
 
     labels = np.concatenate(
         (
-            [[class_id for _ in range(total_steps // n_steps)] for class_id in range(n_classes)]
+            [[class_id for _ in range(total_steps // n_steps)] for class_id in [0,1,2,3,4,5,6,7,8,9,10, 11, 14, 20, 21]]
         )
     )
 
@@ -231,4 +233,3 @@ def read_testing_data(data_path, files, n_classes):
         list_of_channels.append(num_channel)
 
     return X, labels, list_of_channels
-

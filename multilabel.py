@@ -3,73 +3,91 @@ import numpy as np
 import os
 
 '''
-Create dataset from CSV files
+Create multi-label classification dataset
 '''
 
+def name_to_labels(filename):
+    """
+    Convert filename to labels.
 
-def read_training_data(data_path, files, shuffle=False, sub_split=False):
+    :param filename: Name of file to convert.
+    :return: List of labels.
+    """
+    labels = [0,0,0,0,0]
+    if '1' in filename:
+        labels[0] = 1
+    if '2' in filename:
+        labels[1] = 1
+    if '3' in filename:
+        labels[2] = 1
+    if '4' in filename:
+        labels[3] = 1
+    if '5' in filename:
+        labels[4] = 1
+    return labels
+
+
+def read_training_data(data_path, files, shuffle=False, sub_split=False, n_classes=5, n_channels=3, n_rounds=3):
     """
     Read data in from CSV files and format properly for neural networks.
 
-    :param data_path: Absolute file path to data.
-    :param files: filenames of training data 
-    :param shuffle: Whether data should be kept in sequential order or shuffled.
-    :param sub_split: Should the data be split in half and returned as a two-tuple.
-    :return: Data formatted for neural network training.
+    data_path: Absolute file path to data.
+    files: filenames of training data 
+    shuffle: Whether data should be kept in sequential order or shuffled.
+    sub_split: Should the data be split in half and returned as a two-tuple.
+    n_classes: number of classes
+    n_channels: number of channels
+    n_rounds: number of rounds (same label files)
     """
-    n_classes = 6
-    n_channels = 3
-    n_rounds = 2
 
     # get minimum number of rows
     min_n_rows = None
     for file in files:
-        for round_num in range(1, n_rounds):
-            full_round_path = os.path.join(data_path, 's%d' % round_num)
+        for round_num in range(1, n_rounds+1):
+
+            full_round_path = os.path.join(data_path, 'm%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
-            print(full_file_path)
+            
+            if not os.path.isfile(full_file_path):  # check if file exists
+                continue
             df = pd.read_csv(full_file_path, header=None)
             if min_n_rows == None or len(df[0]) < min_n_rows:
                 min_n_rows = len(df[0])
 
     # Fixed params
-    n_steps = 150 # TODO 
-    start_step = 1000 # drop rows before <start_step> of csv
+    n_steps = 150
+    start_step = 1000
     end_step = min_n_rows // n_steps * n_steps
     total_steps = end_step - start_step
-    
-    
-    # Assign numeric label to categories:
-    #
-    # rest = 0
-    # first = 1
-    # second = 2
-    # third = 3
-    # fourth = 4
-    # fifth = 5
-    #
 
+    # create labels
     labels = np.concatenate(
         (
-            [[class_id for _ in range(total_steps // n_steps * n_rounds)] for class_id in range(n_classes)]
+            [[name_to_labels(filename) for _ in range(total_steps // n_steps)] for filename in files]
         )
     )
 
-
+    # output channels (initially empty)
     channels = {i : [] for i in range(n_channels)}
+
+    first_rest = True
     
     for file in files:
         for round_num in range(1, n_rounds+1):
-            full_round_path = os.path.join(data_path, 's%d' % round_num)
+
+            full_round_path = os.path.join(data_path, 'm%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
-            # check if file exists
-            if not os.path.isfile(full_file_path):
+            
+            if not os.path.isfile(full_file_path):  # check if file exists
                 continue
+
+            # read csv
             df = pd.read_csv(full_file_path, header=None)
             channels_of_df = np.array(
                 [np.array(df[i][start_step:end_step]) for i in range(n_channels)]
             )
             
+            # split channels and store into output channels
             for num_channel in range(n_channels):
                 step = 0
                 while (step + n_steps) <= total_steps:
@@ -78,13 +96,14 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
                     )
                     channels[num_channel].append(split_channel)
                     step += n_steps
+        
+        # do normalization
         if file == 'rest.csv':
             restchannels = channels
+
         for num_channel in range(n_channels):
             channels[num_channel] = (channels[num_channel] - np.mean(restchannels[num_channel]))
             channels[num_channel] = channels[num_channel].tolist()
-            
-            
                 
     list_of_channels = []
     X = np.zeros((len(labels), n_steps, n_channels))
@@ -95,20 +114,23 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
    
 
     if shuffle:
-        shuff_labels = np.zeros((len(labels), 1, n_channels))
-        shuff_labels[:, 0, 0] = labels
-        shuff_labels[:, 0, 1] = labels
+        print(labels)
+        shuff_labels = np.zeros((len(labels), n_classes, n_channels))
+        shuff_labels[:, :, 0] = labels
+        shuff_labels[:, :, 1] = labels
         print(shuff_labels.shape)
         print(X.shape)
 
         new_data = np.concatenate([shuff_labels, X], axis=1)
 
-        np.reshape(new_data, (n_steps + 1, len(labels), n_channels))
+        np.reshape(new_data, (n_steps + n_classes, len(labels), n_channels))
         np.random.shuffle(new_data)
-        np.reshape(new_data, (len(labels), n_steps + 1, n_channels))
+        np.reshape(new_data, (len(labels), n_steps + n_classes, n_channels))
 
-        final_data = new_data[:, 1:, :]
-        final_labels = np.array(new_data[:, 0, 0]).astype(int)
+        final_data = new_data[:, 5:, :]
+        final_labels = np.array(new_data[:, :n_classes, 0]).astype(int)
+        print(final_labels)
+        print(final_data)
 
         # Return (train, test)
         if sub_split:
@@ -177,11 +199,9 @@ def get_batches(X, y, batch_size=100):
         yield X[b:b + batch_size], y[b:b + batch_size]
 
 
+# not finished: revisit after finishing model
+def read_testing_data(data_path, files, n_classes, n_channels=3, n_steps=150):
 
-def read_testing_data(data_path, files, n_classes):
-
-    n_channels = 3
-    n_steps = 150
     start_step = 1000
     end_step = 10000
     total_steps = end_step - start_step
@@ -189,17 +209,11 @@ def read_testing_data(data_path, files, n_classes):
     channels = {i : [] for i in range(n_channels)}
     restchannels = None
 
-    print(n_classes)
-
     labels = np.concatenate(
         (
-            [[class_id for _ in range(total_steps // n_steps)] for class_id in range(n_classes)]
+            [[name_to_labels(filename) for _ in range(total_steps // n_steps)] for filename in files]
         )
     )
-
-    channels = {i : [] for i in range(n_channels)}
-    restchannels = None
-    
     
     for file in files:
         full_file_path = os.path.join(data_path, file)
@@ -231,4 +245,3 @@ def read_testing_data(data_path, files, n_classes):
         list_of_channels.append(num_channel)
 
     return X, labels, list_of_channels
-

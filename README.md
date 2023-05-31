@@ -2,47 +2,36 @@
 
 ### file structure:
 ***
-dataset2 : 我那天搜的資料，兩種不同的姿勢，已經denoise過
+**checkpoints-cnn** : CNN 的 checkpoint
 
-以下都已經denoise (band pass filter):
+**datasets** : 已經 denoise 過的train, val data
 
-dataset3 : 我的單一手指data
+    - dataset2 : 我第一次蒐集的 single finger data 兩組
+    - dataset3 : 我第二次蒐集的 single finger data 兩組
+    - dataset4 : 我第二次蒐集的 multiple finger data 三組
 
-dataset4 : 我的多手指data
+**raw_data** : 處理前的 raw data (目前剩你第一次搜的資料沒有被用到)
 
-testdata1 : 後面搜的test data
+**test_datasets** : 已經 denoise 過的test data
 
-testdata2 : 你的單一手指data
+    - testdata1 : 我第二次蒐集的不同姿勢 data 
+    - testdata2 : 妳第二次蒐集的 single finger data 
+    - testdata3 : 妳第二次蒐集的 multiple finger data 三組（沒有rest的所以我把testdata2的複製過來）
 
-testdata3 : 你的多手指data
-
-raw1 : 你那天搜的資料，只有三根手指各兩個channel
-
-raw2 : 我那天搜的資料
-
-raw3 : 5/23 data
 
 filter_to_csv.py : 我拿學長的code來改的，主要就是把raw data denoise 再存成 .csv (我格式是參照他sEMG-NN裡面的csv格式)
 
 pretest.ipynb : 學長給的，裡面有多一些 visualization 的 function
 
-sEMG-Neural-Net : (只有列出我覺得用得到的)
+**sEMG-CNN2.ipynb** : 搭配utilities2，主要是訓練在第一次的資料（超級不穩定）
 
-    - checkpoints-cnn : train cnn 存下來的check point
-    - sEMG : 訓練資料，裡面應該只有csv是訓練需要的，mat不用
-    - sEMG-CNN.ipynb : 這個已經改好了，可以train
-    - sEMG-LSTM.ipynb : 這個在跑的時候我的kernel一直crash掉
-    - utilities.py : 處理dataset的部分
+**sEMG-CNN3.ipynb** : 搭配utilities3，主要是多了normalize，目前是訓練在第二次單一手指（準確度較高，但也是不穩）
 
-新增的code:
+**sEMG-rf.ipynb** : 把原本的 random forest 加上 testing，目前放的是用我的多手指資料 train 和 validate
 
-    - sEMG-CNN3.ipynb: 套用了全新的utility3技術
-    - utility3.py: 套用了normalize
+**utilities_rf.py** : 整理自 utilities3.py，更正 one-hot、rest channel 自己也扣掉、加 read_testing_data() 讀測試資料
 
-2023/5/27 新增:
-
-    - sEMG-rf.ipynb: 把原本的 random forest 加上 testing
-    - utilities_rf.py: 整理自 utilities3.py，更正 one-hot、rest channel 自己也扣掉、加 read_testing_data() 讀測試資料
-
+***
 **TODO**
-可以試看看不同模型，我試試看作fft
+
+做出能比較robust的多手指模型
