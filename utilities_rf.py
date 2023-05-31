@@ -25,7 +25,7 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
     min_n_rows = None
     for file in files:
         for round_num in range(1, n_rounds):
-            full_round_path = os.path.join(data_path, 's%d' % round_num)
+            full_round_path = os.path.join(data_path, 'm%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
             print(full_file_path)
             df = pd.read_csv(full_file_path, header=None)
@@ -60,7 +60,7 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
     
     for file in files:
         for round_num in range(1, n_rounds+1):
-            full_round_path = os.path.join(data_path, 's%d' % round_num)
+            full_round_path = os.path.join(data_path, 'm%d' % round_num)
             full_file_path = os.path.join(full_round_path, file)
             # check if file exists
             if not os.path.isfile(full_file_path):

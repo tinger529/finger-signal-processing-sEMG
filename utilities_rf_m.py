@@ -17,6 +17,7 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
     :param sub_split: Should the data be split in half and returned as a two-tuple.
     :return: Data formatted for neural network training.
     """
+
     n_classes = 22
     n_channels = 3
     n_rounds = 3
