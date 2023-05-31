@@ -17,7 +17,8 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
     :param sub_split: Should the data be split in half and returned as a two-tuple.
     :return: Data formatted for neural network training.
     """
-    n_classes = 24
+
+    n_classes = 22
     n_channels = 3
     n_rounds = 3
 
@@ -36,7 +37,7 @@ def read_training_data(data_path, files, shuffle=False, sub_split=False):
                 min_n_rows = len(df[0])
 
     # Fixed params
-    n_steps = 1000 # TODO 
+    n_steps = 150 # TODO 
     start_step = 1000 # drop rows before <start_step> of csv
     end_step = min_n_rows // n_steps * n_steps
     total_steps = end_step - start_step
@@ -183,7 +184,7 @@ def get_batches(X, y, batch_size=100):
 def read_testing_data(data_path, files, n_classes):
 
     n_channels = 3
-    n_steps = 1000
+    n_steps = 150
     start_step = 1000
     end_step = 10000
     total_steps = end_step - start_step
@@ -195,7 +196,7 @@ def read_testing_data(data_path, files, n_classes):
 
     labels = np.concatenate(
         (
-            [[class_id for _ in range(total_steps // n_steps)] for class_id in [0, 11]]
+            [[class_id for _ in range(total_steps // n_steps)] for class_id in [0,1,2,3,4,5,6,7,8,9,10, 11, 14, 20, 21]]
         )
     )
 
