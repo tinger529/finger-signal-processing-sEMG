@@ -31,7 +31,8 @@ pretest.ipynb : 學長給的，裡面有多一些 visualization 的 function
 
 **utilities_rf.py** : 整理自 utilities3.py，更正 one-hot、rest channel 自己也扣掉、加 read_testing_data() 讀測試資料
 
-***
-**TODO**
+**sEMG-multirf.ipynb** : 把原本的 random forest 改成套用 multilabel
 
-做出能比較robust的多手指模型
+**sEMG-multisvm.ipynb** : 改自 sEMG-multirf，用 SVM 套用 multilabel
+
+**multilabel.py** : 改自 utilities_rf，處理 multilabel 
