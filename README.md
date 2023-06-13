@@ -1,37 +1,52 @@
-# finger-signal-processing-sEMG
+# EMG-based Finger Force Detector
 
-### file structure:
-***
-**checkpoints-cnn** : CNN 的 checkpoint
+Our project utilize EMG signals to distinguish which finger is extracting force. We provide four different settings models, as well as the training and testing dataset.
 
-**datasets** : 已經 denoise 過的train, val data
+## Table of Contents
 
-    - dataset2 : 我第一次蒐集的 single finger data 兩組
-    - dataset3 : 我第二次蒐集的 single finger data 兩組
-    - dataset4 : 我第二次蒐集的 multiple finger data 三組
+- [Project Overview](#project-overview)
+- [Usage](#usage)
+- [Features](#features)
 
-**raw_data** : 處理前的 raw data (目前剩你第一次搜的資料沒有被用到)
+## Project Overview
 
-**test_datasets** : 已經 denoise 過的test data
+Our raw data was obtained with a machine for measuring electromyographic (EMG) signals, Datalink biometrics, and electrodes for signal reception. The setup is connected to a computer to monitor real-time signals and control variables such as sampling rate and reception duration.
 
-    - testdata1 : 我第二次蒐集的不同姿勢 data 
-    - testdata2 : 妳第二次蒐集的 single finger data 
-    - testdata3 : 妳第二次蒐集的 multiple finger data 三組（沒有rest的所以我把testdata2的複製過來）
+The raw data was processed by filter_to_csv.py. This program utilizes butter band pass filter to perform denoising for the input txt file.
+
+The dataset will be processed again in utilities for each model. We performed normalization to denoise again and split the training and testing datasets.
+
+The four provided models are CNN, random forest, multi-label RF and multi-label SVM. You may compare their performance and evaluate the accuracy for each dataset.
+
+Followings are some explanation of our and datasets.
+
+**datasets** : denoised train, val data
+
+    - dataset2 : weak single finger data
+    - dataset3 : strong single finger data
+    - dataset4 : strong multiple finger data
+
+**test_datasets** : denoised test data
+
+    - testdata1 : data with different gesture
+    - testdata2 : single finger data (another student)
+    - testdata3 : multiple finger data (another student)
+
+## Usage
+
+The data we provide already have denoised version. If you want to run new dataset, please run following command to perform denoising.
+
+```
+python3 filter_to_csv.py --input_file <your raw data> --output_file <new file pathname>
+```
+
+The code can be easily executed by clicking run all for each notebook. Note that if you want to change the dataset, please also modify its coresponding utilities code.
+
+## Features
+
+For multi label classification, we predict each input as a five dimension vector, indicating which fingers are extracting force. 
 
 
-filter_to_csv.py : 我拿學長的code來改的，主要就是把raw data denoise 再存成 .csv (我格式是參照他sEMG-NN裡面的csv格式)
+## Acknowledgements
 
-pretest.ipynb : 學長給的，裡面有多一些 visualization 的 function
-
-**sEMG-CNN2.ipynb** : 搭配utilities2，主要是訓練在第一次的資料（超級不穩定）
-
-**sEMG-CNN3.ipynb** : 搭配utilities3，主要是多了normalize，目前是訓練在第二次單一手指（準確度較高，但也是不穩）
-
-**sEMG-rf.ipynb** : 把原本的 random forest 加上 testing，目前放的是用我的多手指資料 train 和 validate
-
-**utilities_rf.py** : 整理自 utilities3.py，更正 one-hot、rest channel 自己也扣掉、加 read_testing_data() 讀測試資料
-
-***
-**TODO**
-
-做出能比較robust的多手指模型
+Some of the codes are referenced from Advanced Control Laboratory, NTUEE, and [this repo](https://github.com/dwburer/sEMG-Neural-Net.git) from github.
